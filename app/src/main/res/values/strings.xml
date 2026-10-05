@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ModaApp</string>
+    <string name="app_subtitle">Boutique Moda Urbana</string>
+    <string name="label_usuario">Usuario</string>
+    <string name="label_clave">Contraseña</string>
+    <string name="btn_ingresar">Ingresar como administrador</string>
+    <string name="btn_ver_catalogo">Ver catálogo (cliente)</string>
+    <string name="hint_credenciales">Prueba: admin / 1234</string>
+
+    <string name="welcome_admin">Hola, admin</string>
+    <string name="menu_ropa">Ropa</string>
+    <string name="menu_pedidos">Pedidos</string>
+    <string name="menu_clientes">Clientes</string>
+    <string name="menu_reportes">Reportes</string>
+    <string name="btn_salir">Salir</string>
+
+    <string name="err_campo_requerido">Campo obligatorio</string>
+    <string name="err_credenciales">Credenciales incorrectas</string>
+</resources>
