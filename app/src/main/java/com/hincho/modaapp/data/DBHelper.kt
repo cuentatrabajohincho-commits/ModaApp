@@ -260,4 +260,42 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
             db.endTransaction()
         }
     }
+
+    // --- Métodos HU-07: Reportes y Pedidos ---
+
+    fun obtenerPedidos(): List<Pedido> {
+        val lista = mutableListOf<Pedido>()
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT id, cliente_nombre, cliente_telefono, fecha, total, estado FROM pedido ORDER BY id DESC",
+            null
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                lista.add(
+                    Pedido(
+                        id = cursor.getInt(0),
+                        clienteNombre = cursor.getString(1),
+                        clienteTelefono = cursor.getString(2),
+                        fecha = cursor.getString(3),
+                        total = cursor.getDouble(4),
+                        estado = cursor.getString(5)
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return lista
+    }
+
+    fun obtenerTotalVentas(): Double {
+        val db = readableDatabase
+        var total = 0.0
+        val cursor = db.rawQuery("SELECT SUM(total) FROM pedido", null)
+        if (cursor.moveToFirst()) {
+            total = cursor.getDouble(0)
+        }
+        cursor.close()
+        return total
+    }
 }
