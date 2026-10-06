@@ -1,5 +1,6 @@
 package com.hincho.modaapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,6 +25,10 @@ class CatalogoActivity : AppCompatActivity() {
         adapter = CatalogoAdapter(emptyList())
         binding.rvCatalogo.layoutManager = GridLayoutManager(this, 2)
         binding.rvCatalogo.adapter = adapter
+
+        binding.fabCarrito.setOnClickListener {
+            startActivity(Intent(this, CarritoActivity::class.java))
+        }
 
         cargarChipsCategorias()
         cargarCatalogo(0) // 0 = Todas
@@ -53,4 +58,5 @@ class CatalogoActivity : AppCompatActivity() {
         val lista = dbHelper.listarRopaDisponibles(idCategoria)
         adapter.actualizarLista(lista)
     }
+
 }

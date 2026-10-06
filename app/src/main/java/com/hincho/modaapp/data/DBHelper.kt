@@ -5,6 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.hincho.modaapp.model.Categoria
+import com.hincho.modaapp.model.DetallePedido
+import com.hincho.modaapp.model.Pedido
 import com.hincho.modaapp.model.Ropa
 import com.hincho.modaapp.model.Usuario
 
@@ -12,7 +14,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
 
     companion object {
         private const val DATABASE_NAME = "modaapp.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
@@ -82,7 +84,34 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Se implementará migración en el Sprint 3 para DB_VERSION = 2
+        if (oldVersion < 2) {
+            db.execSQL(
+                """
+            CREATE TABLE pedido (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cliente_nombre TEXT NOT NULL,
+                cliente_telefono TEXT NOT NULL,
+                fecha TEXT NOT NULL,
+                total REAL NOT NULL,
+                estado TEXT NOT NULL
+            )
+            """.trimIndent()
+            )
+
+            db.execSQL(
+                """
+            CREATE TABLE detalle_pedido (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_pedido INTEGER NOT NULL,
+                id_ropa INTEGER NOT NULL,
+                cantidad INTEGER NOT NULL,
+                precio_unitario REAL NOT NULL,
+                FOREIGN KEY (id_pedido) REFERENCES pedido(id),
+                FOREIGN KEY (id_ropa) REFERENCES ropa(id)
+            )
+            """.trimIndent()
+            )
+        }
     }
 
     // --- Métodos HU-04: Usuario ---
@@ -190,5 +219,45 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null
         }
         cursor.close()
         return lista
+    }
+
+    // Metodo para guardar pedido completo y descontar stock
+    fun guardarPedido(pedido: Pedido, detalles: List<DetallePedido>): Boolean {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            val valuesPedido = ContentValues().apply {
+                put("cliente_nombre", pedido.clienteNombre)
+                put("cliente_telefono", pedido.clienteTelefono)
+                put("fecha", pedido.fecha)
+                put("total", pedido.total)
+                put("estado", pedido.estado)
+            }
+            val idPedido = db.insert("pedido", null, valuesPedido)
+            if (idPedido == -1L) return false
+
+            for (det in detalles) {
+                val valuesDet = ContentValues().apply {
+                    put("id_pedido", idPedido)
+                    put("id_ropa", det.ropa.id)
+                    put("cantidad", det.cantidad)
+                    put("precio_unitario", det.precioUnitario)
+                }
+                db.insert("detalle_pedido", null, valuesDet)
+
+                // Descontar Stock
+                db.execSQL(
+                    "UPDATE ropa SET cantidad = cantidad - ? WHERE id = ?",
+                    arrayOf(det.cantidad, det.ropa.id)
+                )
+            }
+
+            db.setTransactionSuccessful()
+            return true
+        } catch (e: Exception) {
+            return false
+        } finally {
+            db.endTransaction()
+        }
     }
 }
