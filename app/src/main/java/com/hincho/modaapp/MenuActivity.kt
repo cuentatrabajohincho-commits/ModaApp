@@ -30,6 +30,10 @@ class MenuActivity : AppCompatActivity() {
             startActivity(Intent(this, ReportesActivity::class.java))
         }
 
+        binding.btnVerCatalogoMenu.setOnClickListener {
+            startActivity(Intent(this, CatalogoActivity::class.java))
+        }
+
         binding.btnSalir.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)

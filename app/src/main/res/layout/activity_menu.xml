@@ -164,6 +164,14 @@
         </GridLayout>
 
         <Button
+            android:id="@+id/btnVerCatalogoMenu"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Ver Catálogo"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="12dp"/>
+
+        <Button
             android:id="@+id/btnSalir"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"

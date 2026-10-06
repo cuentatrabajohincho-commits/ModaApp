@@ -3,7 +3,9 @@ package com.hincho.modaapp.adapter
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.hincho.modaapp.data.CarritoManager
 import com.hincho.modaapp.databinding.ItemCatalogoBinding
 import com.hincho.modaapp.model.Ropa
 import java.io.File
@@ -27,6 +29,24 @@ class CatalogoAdapter(private var lista: List<Ropa>) : RecyclerView.Adapter<Cata
             holder.binding.ivItemFoto.setImageBitmap(BitmapFactory.decodeFile(item.foto))
         } else {
             holder.binding.ivItemFoto.setImageResource(android.R.drawable.ic_menu_gallery)
+        }
+
+        // EVENTO DE CLIC PARA AGREGAR AL CARRITO DE COMPRAS
+        holder.itemView.setOnClickListener {
+            if (item.cantidad > 0) {
+                CarritoManager.agregarRopa(item)
+                Toast.makeText(
+                    holder.itemView.context,
+                    "${item.modelo} añadido al carrito",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    holder.itemView.context,
+                    "Prenda sin stock disponible",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
