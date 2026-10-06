@@ -4,16 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.hincho.modaapp.data.DBHelper
 import com.hincho.modaapp.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var dbHelper: DBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        dbHelper = DBHelper(this)
 
         binding.btnIngresar.setOnClickListener {
             val usuario = binding.etUsuario.text.toString().trim()
@@ -36,11 +40,15 @@ class LoginActivity : AppCompatActivity() {
             }
 
             if (valido) {
-                // Validación estática para el Sprint 1
-                if (usuario == "admin" && clave == "1234") {
-                    val intent = Intent(this, MenuActivity::class.java)
+                // Validación con SQLite (HU-04)
+                val userObj = dbHelper.validarUsuario(usuario, clave)
+                if (userObj != null) {
+                    val intent = Intent(this, MenuActivity::class.java).apply {
+                        putExtra("USUARIO_NOMBRE", userObj.usuario)
+                        putExtra("USUARIO_ROL", userObj.rol)
+                    }
                     startActivity(intent)
-                    finish() // Cierra el login para no regresar con 'Atrás'
+                    finish()
                 } else {
                     Toast.makeText(this, R.string.err_credenciales, Toast.LENGTH_SHORT).show()
                 }
@@ -48,8 +56,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnVerCatalogo.setOnClickListener {
-            val intent = Intent(this, CatalogoActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, CatalogoActivity::class.java))
         }
     }
 }
