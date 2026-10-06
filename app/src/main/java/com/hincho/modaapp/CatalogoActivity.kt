@@ -14,6 +14,7 @@ class CatalogoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCatalogoBinding
     private lateinit var dbHelper: DBHelper
     private lateinit var adapter: CatalogoAdapter
+    private var idCategoriaSeleccionada: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,20 +27,33 @@ class CatalogoActivity : AppCompatActivity() {
         binding.rvCatalogo.layoutManager = GridLayoutManager(this, 2)
         binding.rvCatalogo.adapter = adapter
 
+        // Evento para abrir el Carrito
         binding.fabCarrito.setOnClickListener {
-            startActivity(Intent(this, CarritoActivity::class.java))
+            val intent = Intent(this, CarritoActivity::class.java)
+            startActivity(intent)
         }
 
         cargarChipsCategorias()
-        cargarCatalogo(0) // 0 = Todas
+        cargarCatalogo(0)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Recargar prendas al volver del carrito por si cambió el stock
+        cargarCatalogo(idCategoriaSeleccionada)
     }
 
     private fun cargarChipsCategorias() {
+        binding.chipGroupCategorias.removeAllViews()
+
         val chipTodas = Chip(this).apply {
             text = "Todas"
             isCheckable = true
             isChecked = true
-            setOnClickListener { cargarCatalogo(0) }
+            setOnClickListener {
+                idCategoriaSeleccionada = 0
+                cargarCatalogo(0)
+            }
         }
         binding.chipGroupCategorias.addView(chipTodas)
 
@@ -48,7 +62,10 @@ class CatalogoActivity : AppCompatActivity() {
             val chip = Chip(this).apply {
                 text = cat.nombre
                 isCheckable = true
-                setOnClickListener { cargarCatalogo(cat.id) }
+                setOnClickListener {
+                    idCategoriaSeleccionada = cat.id
+                    cargarCatalogo(cat.id)
+                }
             }
             binding.chipGroupCategorias.addView(chip)
         }
@@ -58,5 +75,4 @@ class CatalogoActivity : AppCompatActivity() {
         val lista = dbHelper.listarRopaDisponibles(idCategoria)
         adapter.actualizarLista(lista)
     }
-
 }
